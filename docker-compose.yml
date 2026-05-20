@@ -1,19 +1,44 @@
 services:
-  postgresdb:
+  trcp_monorepo_template_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trcp_monorepo_template_app
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/app
+      # - pnpm-store:/pnpm/store
+      # - /app/node_modules
+    environment:
+      DATABASE_URL: postgres://admin:admin@trcp_monorepo_template_postgres:5432/trcp_monorepo_template_db
+    depends_on:
+      - trcp_monorepo_template_postgres
+    networks:
+      - trcp_template_network
+    command: tail -f /dev/null
+
+  trcp_monorepo_template_postgres:
     image: postgres:15
     restart: unless-stopped
-    container_name: postgresdb
+    container_name: trcp_monorepo_template_postgres
 
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: dev
+      POSTGRES_DB: trcp_monorepo_template_db
 
     ports:
       - "5432:5432"
 
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - trcp_monorepo_template_pg_data:/var/lib/postgresql/data
+    networks:
+      - trcp_template_network
+
+networks:
+  trcp_template_network:
+    driver: bridge
 
 volumes:
-  pg_data:
+  trcp_monorepo_template_pg_data:
